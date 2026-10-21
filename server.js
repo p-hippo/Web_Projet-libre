@@ -26,10 +26,12 @@ app.get('/stream', (req, res) => {
   const ytDlpPath = youtubedl.constants.YOUTUBE_DL_PATH;
 
   const ytProcess = spawn(ytDlpPath, [
-    '-f', 'bestaudio[ext=webm]/bestaudio',
+    '--extractor-args', 'youtube:player_client=android_vr,tv_embedded,ios',
+    '-f', 'bestaudio/best',
     '-o', '-',
     '--quiet',
     '--no-playlist',
+    '--no-check-certificates',
     videoUrl
   ]);
 
