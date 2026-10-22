@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const { spawn } = require('child_process');
-const youtubedl = require('youtube-dl-exec');
 const path = require('path');
 
 const app = express();
@@ -21,15 +20,13 @@ app.get('/stream', (req, res) => {
   }
 
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Content-Type', 'audio/webm');
+  res.setHeader('Content-Type', 'audio/mpeg');
 
-  const ytDlpPath = youtubedl.constants.YOUTUBE_DL_PATH;
-
-  const ytProcess = spawn(ytDlpPath, [
+  const ytProcess = spawn('yt-dlp', [
         '--rm-cache-dir', 
-        '--extractor-args', 'youtube:player_client=android', // Toujours déguisé en Android
-        '-f', 'ba/b',          // NOUVEAU : bestaudio SINON best (vidéo+audio)
-        '-o', '-',             // Sortie directe vers le site
+        '--extractor-args', 'youtube:player_client=android',
+        '-f', 'ba/b',
+        '-o', '-',
         videoUrl
     ]);
 
