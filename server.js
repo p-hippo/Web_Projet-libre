@@ -26,14 +26,12 @@ app.get('/stream', (req, res) => {
   const ytDlpPath = youtubedl.constants.YOUTUBE_DL_PATH;
 
   const ytProcess = spawn(ytDlpPath, [
-    '--extractor-args', 'youtube:player_client=android_vr,tv_embedded,ios',
-    '-f', 'bestaudio/best',
-    '-o', '-',
-    '--quiet',
-    '--no-playlist',
-    '--no-check-certificates',
-    videoUrl
-  ]);
+        '--rm-cache-dir', 
+        '--extractor-args', 'youtube:player_client=android', // Toujours déguisé en Android
+        '-f', 'ba/b',          // NOUVEAU : bestaudio SINON best (vidéo+audio)
+        '-o', '-',             // Sortie directe vers le site
+        videoUrl
+    ]);
 
   ytProcess.stdout.pipe(res);
 
