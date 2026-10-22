@@ -42,12 +42,16 @@ app.get('/stream', (req, res) => {
   }
 
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Content-Type', 'audio/mpeg');
+  res.setHeader('Content-Type', 'audio/webm');
 
   const ytDlpPath = youtubedl.constants.YOUTUBE_DL_PATH;
   const cookiesPath = getWritableCookiesPath();
 
   const args = [
+    '--js-runtimes', 'node',
+    '--remote-components', 'ejs:github',
+    '--cache-dir', '/tmp/yt-dlp-cache',
+    '--extractor-args', 'youtube:player_client=web_creator,mweb,web',
     '-f', 'bestaudio[ext=webm]/bestaudio/best',
     '-o', '-',
     '--quiet',
