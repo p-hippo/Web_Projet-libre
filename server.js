@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const { spawn } = require('child_process');
 const youtubedl = require('youtube-dl-exec');
+const ffmpegPath = require('ffmpeg-static');
 const path = require('path');
 const fs = require('fs');
 
@@ -25,6 +26,14 @@ function getWritableCookiesPath() {
   return null;
 }
 
+function getYtDlpBinary() {
+  const linuxStandalone = path.join(__dirname, 'yt-dlp_linux');
+  if (fs.existsSync(linuxStandalone)) {
+    return linuxStandalone;
+  }
+  return youtubedl.constants.YOUTUBE_DL_PATH;
+}
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -44,14 +53,15 @@ app.get('/stream', (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Content-Type', 'audio/webm');
 
-  const ytDlpPath = youtubedl.constants.YOUTUBE_DL_PATH;
+  const ytDlpPath = getYtDlpBinary();
   const cookiesPath = getWritableCookiesPath();
 
   const args = [
     '--js-runtimes', 'node',
     '--remote-components', 'ejs:github',
     '--cache-dir', '/tmp/yt-dlp-cache',
-    '--extractor-args', 'youtube:player_client=web_creator,mweb,web',
+    '--extractor-args', 'youtube:player_client=tv,web_safari,default',
+    '--ffmpeg-location', ffmpegPath,
     '-f', 'bestaudio[ext=webm]/bestaudio/best',
     '-o', '-',
     '--quiet',
