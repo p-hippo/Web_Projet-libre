@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { spawn } = require('child_process');
+const youtubedl = require('youtube-dl-exec');
 const path = require('path');
 
 const app = express();
@@ -22,7 +23,9 @@ app.get('/stream', (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Content-Type', 'audio/mpeg');
 
-  const ytProcess = spawn('yt-dlp', [
+  const ytDlpPath = youtubedl.constants.YOUTUBE_DL_PATH;
+
+  const ytProcess = spawn(ytDlpPath, [
         '--rm-cache-dir', 
         '--extractor-args', 'youtube:player_client=android',
         '-f', 'ba/b',
