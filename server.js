@@ -3,6 +3,27 @@ const cors = require('cors');
 const { spawn } = require('child_process');
 const youtubedl = require('youtube-dl-exec');
 const path = require('path');
+const fs = require('fs');
+
+function getWritableCookiesPath() {
+  const possiblePaths = [
+    '/etc/secrets/cookies.txt',
+    path.join(__dirname, 'cookies.txt')
+  ];
+
+  for (const secretPath of possiblePaths) {
+    if (fs.existsSync(secretPath)) {
+      const tempCookiesPath = '/tmp/cookies.txt';
+      try {
+        fs.copyFileSync(secretPath, tempCookiesPath);
+        return tempCookiesPath;
+      } catch (e) {
+        return secretPath;
+      }
+    }
+  }
+  return null;
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -24,14 +45,23 @@ app.get('/stream', (req, res) => {
   res.setHeader('Content-Type', 'audio/mpeg');
 
   const ytDlpPath = youtubedl.constants.YOUTUBE_DL_PATH;
+  const cookiesPath = getWritableCookiesPath();
 
-  const ytProcess = spawn(ytDlpPath, [
-        '--rm-cache-dir', 
-        '--extractor-args', 'youtube:player_client=android',
-        '-f', 'ba/b',
-        '-o', '-',
-        videoUrl
-    ]);
+  const args = [
+    '-f', 'bestaudio[ext=webm]/bestaudio/best',
+    '-o', '-',
+    '--quiet',
+    '--no-playlist'
+  ];
+
+  if (cookiesPath) {
+    args.push('--cookies', cookiesPath);
+  } else {
+    console.warn('Aucun fichier cookies.txt trouvé !');
+  }
+  args.push(videoUrl);
+
+  const ytProcess = spawn(ytDlpPath, args);
 
   ytProcess.stdout.pipe(res);
 
